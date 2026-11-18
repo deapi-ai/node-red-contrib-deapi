@@ -1,6 +1,6 @@
 {
   "name": "@deapi/node-red-deapi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Node-RED nodes for deAPI: generate images, video, speech and music, remove backgrounds, upscale, OCR, transcribe audio/video and create embeddings with open-source AI models",
   "main": "nodes/deapi.js",
   "files": [
