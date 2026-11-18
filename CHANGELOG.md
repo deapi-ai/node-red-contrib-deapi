@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-11-18
+
+### Changed
+
+- First release published from GitHub Actions through npm trusted publishing
+  with provenance (staged, approved with 2FA). No code changes.
+
 ## [0.1.0] - 2026-11-18
 
 First release of `@deapi/node-red-deapi`.
@@ -19,4 +26,5 @@ First release of `@deapi/node-red-deapi`.
 - Three example flows (Menu → Import → Examples).
 - Requires Node-RED 4.0 or newer and Node.js 20 or newer. No runtime dependencies.
 
+[0.1.1]: https://github.com/deapi-ai/node-red-contrib-deapi/releases/tag/v0.1.1
 [0.1.0]: https://github.com/deapi-ai/node-red-contrib-deapi/releases/tag/v0.1.0
