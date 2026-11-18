@@ -5,12 +5,12 @@
       { value: 'edit-image', label: 'Image: edit with a prompt', model: 'Flux_2_Klein_4B_BF16', prompt: true },
       { value: 'remove-background', label: 'Image: remove background', model: 'Ben2', prompt: false },
       { value: 'upscale-image', label: 'Image: upscale 4x', model: 'RealESRGAN_x4', prompt: false },
-      { value: 'image-to-text', label: 'Image: extract text (OCR)', model: 'Nanonets_Ocr_S_F16', prompt: false },
-      { value: 'generate-video', label: 'Video: generate from text', model: 'Ltx2_3_22B_Dist_INT8', prompt: false },
-      { value: 'animate-image', label: 'Video: animate an image', model: 'Ltx2_3_22B_Dist_INT8', prompt: true },
+      { value: 'image-to-text', label: 'Image: extract text (OCR)', model: 'LightOnOcr_3_4B_Q8', prompt: false },
+      { value: 'generate-video', label: 'Video: generate from text', model: 'Ltx2_5_22B_Dist_INT8', prompt: false },
+      { value: 'animate-image', label: 'Video: animate an image', model: 'Ltx2_5_22B_Dist_INT8', prompt: true },
       { value: 'text-to-speech', label: 'Audio: text to speech', model: 'Kokoro', prompt: false },
-      { value: 'transcribe', label: 'Audio/Video: transcribe (file or URL)', model: 'WhisperLargeV3', prompt: false },
-      { value: 'generate-music', label: 'Audio: generate music', model: 'AceStep_1_5_Turbo', prompt: false },
+      { value: 'transcribe', label: 'Audio/Video: transcribe (file or URL)', model: 'WhisperLargeV3Ct2', prompt: false },
+      { value: 'generate-music', label: 'Audio: generate music', model: 'AceStep_1_5_XL_Turbo_INT8', prompt: false },
       { value: 'embeddings', label: 'Text: create embeddings', model: 'Bge_M3_FP16', prompt: false },
     ];
     function findOp(value) {
@@ -133,7 +133,7 @@ The node submits a job, waits for it to finish and returns the result.
 
 : payload (Buffer | string | array) : The generated file as a `Buffer` (image, video, audio), the text (OCR, transcription) or the embedding vectors. With **Output: Result URL only** it is the result URL.
 : contentType (string) : MIME type of the downloaded file, for example `image/png` or `video/mp4`.
-: deapi (object) : `requestId`, `model`, `resultUrl` (valid for a few hours) and `price`.
+: deapi (object) : `requestId`, `model`, `resultUrl` (valid for a few hours) and `price`. For transcription also `transcript`: the full result with `language` and, with `{"include_ts": true}` in params, `segments` with timestamps.
 
 ### Operations
 
@@ -143,12 +143,12 @@ The node submits a job, waits for it to finish and returns the result.
 | Image: edit with a prompt | image + prompt | Flux_2_Klein_4B_BF16 |
 | Image: remove background | image | Ben2 |
 | Image: upscale 4x | image | RealESRGAN_x4 |
-| Image: extract text (OCR) | image | Nanonets_Ocr_S_F16 |
-| Video: generate from text | prompt | Ltx2_3_22B_Dist_INT8 |
-| Video: animate an image | image + prompt | Ltx2_3_22B_Dist_INT8 |
+| Image: extract text (OCR) | image | LightOnOcr_3_4B_Q8 |
+| Video: generate from text | prompt | Ltx2_5_22B_Dist_INT8 |
+| Video: animate an image | image + prompt | Ltx2_5_22B_Dist_INT8 |
 | Audio: text to speech | text | Kokoro |
-| Audio/Video: transcribe | file or URL | WhisperLargeV3 |
-| Audio: generate music | description | AceStep_1_5_Turbo |
+| Audio/Video: transcribe | file or URL | WhisperLargeV3Ct2 |
+| Audio: generate music | description | AceStep_1_5_XL_Turbo_INT8 |
 | Text: create embeddings | text | Bge_M3_FP16 |
 
 After you deploy the config node, the **Model** field suggests every model available for the selected operation.

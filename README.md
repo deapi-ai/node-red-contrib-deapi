@@ -8,12 +8,12 @@
 | Image: edit with a prompt | image `Buffer`/URL + `msg.prompt` | PNG `Buffer` | FLUX.2 Klein 4B |
 | Image: remove background | image `Buffer`/URL | transparent PNG `Buffer` | Ben2 |
 | Image: upscale 4x | image `Buffer`/URL | PNG `Buffer` | RealESRGAN x4 |
-| Image: extract text (OCR) | image `Buffer`/URL | text | Nanonets OCR |
-| Video: generate from text | prompt | MP4 `Buffer` | LTX-2.3 22B |
-| Video: animate an image | image `Buffer`/URL + `msg.prompt` | MP4 `Buffer` | LTX-2.3 22B |
+| Image: extract text (OCR) | image `Buffer`/URL | text | LightOnOCR 3 4B |
+| Video: generate from text | prompt | MP4 `Buffer` | LTX-2.5 22B |
+| Video: animate an image | image `Buffer`/URL + `msg.prompt` | MP4 `Buffer` | LTX-2.5 22B |
 | Audio: text to speech | text | MP3 `Buffer` | Kokoro (41 voices) |
-| Audio/Video: transcribe | audio/video `Buffer`, or a YouTube, X, Twitch, Kick or direct URL | text | Whisper Large V3 |
-| Audio: generate music | description (`msg.params.lyrics` optional) | MP3 `Buffer` | ACE-Step 1.5 Turbo |
+| Audio/Video: transcribe | audio/video `Buffer`, or a YouTube, X, Twitch, Kick or direct URL | text | Whisper Large V3 (CTranslate2) |
+| Audio: generate music | description (`msg.params.lyrics` optional) | MP3 `Buffer` | ACE-Step 1.5 XL Turbo |
 | Text: create embeddings | text | vectors (array) | BGE-M3 |
 
 Every other model in the deAPI catalog can be selected in the **Model** field.
@@ -44,7 +44,7 @@ The node submits a job, waits for it to finish (the node status shows progress) 
 
 - `msg.payload`: the file as a `Buffer`, the text, or the embedding vectors
 - `msg.contentType`: for example `image/png`, `video/mp4`, `audio/mpeg`
-- `msg.deapi`: `{ operation, model, requestId, resultUrl, price }`
+- `msg.deapi`: `{ operation, model, requestId, resultUrl, price }`. For transcription it also has `transcript` with the detected `language` and, if you pass `{"include_ts": true}` in `msg.params`, timestamped `segments`.
 
 Set **Output** to **Result URL only** to skip the download and get the result URL instead. The URL is valid for a few hours.
 

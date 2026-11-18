@@ -68,6 +68,7 @@ module.exports = function (RED) {
           resultUrl: result.job.result_url || null,
           price: result.job.price || null,
         };
+        if (result.details) msg.deapi.transcript = result.details;
         active -= 1;
         node.status(active > 0 ? { fill: 'blue', shape: 'dot', text: `${active} running` } : { fill: 'green', shape: 'dot', text: `${operation}: done` });
         send(msg);

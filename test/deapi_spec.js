@@ -23,7 +23,7 @@ function flow(operation, extra = {}) {
 const MODELS = {
   data: [
     { slug: 'Flux1schnell', inference_types: ['txt2img'], info: { defaults: { steps: 4, width: 768, height: 768, quality: null, negative_prompt: 'Negative prompt' }, limits: {} } },
-    { slug: 'AceStep_1_5_Turbo', inference_types: ['txt2music'], info: { defaults: { format: 'mp3' }, limits: { min_steps: 8, min_guidance: 1 } } },
+    { slug: 'AceStep_1_5_XL_Turbo_INT8', inference_types: ['txt2music'], info: { defaults: { format: 'mp3' }, limits: { min_steps: 8, min_guidance: 1 } } },
   ],
 };
 
@@ -135,7 +135,7 @@ describe('request builder', function () {
     const req = await buildRequest(client, 'transcribe', { payload: 'https://www.youtube.com/watch?v=abc' });
     assert.strictEqual(req.path, '/audio/transcriptions');
     assert.strictEqual(req.init.body.get('source_url'), 'https://www.youtube.com/watch?v=abc');
-    assert.strictEqual(req.init.body.get('model'), 'WhisperLargeV3');
+    assert.strictEqual(req.init.body.get('model'), 'WhisperLargeV3Ct2');
   });
 
   it('adds music-specific defaults', async function () {

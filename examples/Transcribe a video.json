@@ -8,7 +8,7 @@
     "id": "cm2",
     "type": "comment",
     "z": "tab2",
-    "name": "Transcribe a YouTube, X, Twitch or Kick video (or an uploaded audio Buffer) with Whisper Large V3.",
+    "name": "Transcribe a YouTube, X, Twitch or Kick video (or an uploaded audio Buffer) with Whisper Large V3 (CTranslate2).",
     "x": 400,
     "y": 40,
     "wires": []
