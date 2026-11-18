@@ -6,17 +6,32 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  test:
+    name: Node.js ${{ matrix.node-version }}, Node-RED ${{ matrix.node-red }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        node-version: ['20', '22']
+        # engines.node is >=20 and node-red.version is >=4.0.0. Node-RED 5 needs Node.js >=22.9.
+        include:
+          - { node-version: '20', node-red: '4' }
+          - { node-version: '22', node-red: '4' }
+          - { node-version: '24', node-red: '4' }
+          - { node-version: '22', node-red: '5' }
+          - { node-version: '24', node-red: '5' }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
@@ -24,5 +39,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test
+      - name: Use Node-RED ${{ matrix.node-red }}
+        if: matrix.node-red != '4'
+        run: npm install --no-save "node-red@${{ matrix.node-red }}"
+
+      - name: Test (with coverage)
+        run: |
+          node -p "'node-red ' + require('node-red/package.json').version"
+          npm run test:coverage
+
+      - name: Package contents
+        run: npm pack --dry-run

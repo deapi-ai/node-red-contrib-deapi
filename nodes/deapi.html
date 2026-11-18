@@ -128,6 +128,7 @@ The node submits a job, waits for it to finish and returns the result.
 : params (object) : Optional. Extra API fields, for example `{"width": 1024, "height": 768, "steps": 4}` or `{"voice": "bm_george", "lang": "en-gb"}`. Merged over the node's extra params.
 : filename (string) : Optional. File name for uploaded Buffers, for example `speech.wav`.
 : operation (string) : Optional. Overrides the operation, for example `remove-background`.
+: output (string) : Optional. Overrides the **Output** property: `"url"` returns only the result URL (no download), `"auto"` returns the file, text or JSON.
 
 ### Outputs
 
