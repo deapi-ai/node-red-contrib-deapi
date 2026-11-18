@@ -1,4 +1,4 @@
-# node-red-contrib-deapi
+# @deapi/node-red-deapi
 
 [Node-RED](https://nodered.org) nodes for [deAPI](https://deapi.ai). They run open-source AI models for images, video, speech, transcription, music and embeddings, with one API key and pay-per-use pricing.
 
@@ -20,19 +20,19 @@ Every other model in the deAPI catalog can be selected in the **Model** field.
 
 ## Install
 
-From the Node-RED editor: **Menu → Manage palette → Install**, search for `node-red-contrib-deapi`.
+From the Node-RED editor: **Menu → Manage palette → Install**, search for `@deapi/node-red-deapi` (the palette lists packages from the [Node-RED Flow Library](https://flows.nodered.org)).
 
 Or from your Node-RED user directory (usually `~/.node-red`):
 
 ```bash
-npm install node-red-contrib-deapi
+npm install @deapi/node-red-deapi
 ```
 
-Requires Node-RED 3.0 or newer and Node.js 18 or newer. The package has no runtime dependencies.
+Then restart Node-RED. Requires Node-RED 4.0 or newer and Node.js 20 or newer. The package has no runtime dependencies. Package page: [npmjs.com/package/@deapi/node-red-deapi](https://www.npmjs.com/package/@deapi/node-red-deapi).
 
 ## Setup
 
-1. Get an API key at [app.deapi.ai](https://app.deapi.ai/register).
+1. Create an API key at [app.deapi.ai/settings/api-keys](https://app.deapi.ai/settings/api-keys).
 2. Drop a **deAPI** node (category **AI**) into a flow, open it and add a new **deAPI config** with your key.
 3. Pick an operation and deploy.
 
@@ -46,7 +46,7 @@ The node submits a job, waits for it to finish (the node status shows progress) 
 - `msg.contentType`: for example `image/png`, `video/mp4`, `audio/mpeg`
 - `msg.deapi`: `{ operation, model, requestId, resultUrl, price }`. For transcription it also has `transcript` with the detected `language` and, if you pass `{"include_ts": true}` in `msg.params`, timestamped `segments`.
 
-Set **Output** to **Result URL only** to skip the download and get the result URL instead. The URL is valid for a few hours.
+Set **Output** to **Result URL only** (or `msg.output = "url"`) to skip the download and get the result URL instead. The URL is valid for a few hours.
 
 ### Overrides from the message
 
@@ -57,12 +57,15 @@ Set **Output** to **Result URL only** to skip the download and get the result UR
 | `msg.params` | `{"width": 1024, "height": 768}`, `{"voice": "bm_george", "lang": "en-gb", "speed": 1.1}`, `{"duration": 60, "lyrics": "[Instrumental]"}` |
 | `msg.filename` | `"meeting.wav"` (name of an uploaded `Buffer`) |
 | `msg.operation` | `"remove-background"` |
+| `msg.output` | `"url"` (result URL only, no download) or `"auto"` (file, text or JSON) |
 
 Model defaults (size, steps, voice, frame count) come from the deAPI model catalog, so most operations only need `msg.payload`.
 
+For **Qwen3 TTS VoiceDesign** (`msg.model = "Qwen3_TTS_12Hz_1_7B_VoiceDesign"`) describe the voice in `msg.params`: `{"mode": "voice_design", "instruct": "A warm female voice with a British accent"}`.
+
 ## Example flows
 
-Import from **Menu → Import → Examples → node-red-contrib-deapi**:
+Import from **Menu → Import → Examples → @deapi/node-red-deapi**:
 
 - **Product photo cleanup**: image URL → upscale 4x → remove background → transparent PNG on disk
 - **Transcribe a video**: YouTube URL → Whisper transcript → text file
@@ -79,6 +82,7 @@ You pay deAPI per job, for example about $0.002 for a FLUX image, $0.0003 for a 
 ```bash
 npm install
 npm test                         # mocked tests
+npm run test:coverage            # mocked tests with coverage
 DEAPI_API_KEY=... npm test       # adds a live end-to-end test
 ```
 

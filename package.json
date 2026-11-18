@@ -1,5 +1,5 @@
 {
-  "name": "node-red-contrib-deapi",
+  "name": "@deapi/node-red-deapi",
   "version": "0.1.0",
   "description": "Node-RED nodes for deAPI: generate images, video, speech and music, remove backgrounds, upscale, OCR, transcribe audio/video and create embeddings with open-source AI models",
   "main": "nodes/deapi.js",
@@ -7,14 +7,17 @@
     "nodes",
     "lib",
     "examples",
+    "CHANGELOG.md",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "test": "mocha \"test/**/*_spec.js\" --timeout 600000"
+    "test": "mocha \"test/**/*_spec.js\" --timeout 600000",
+    "test:coverage": "c8 --include=lib --include=nodes --reporter=text --reporter=text-summary npm test"
   },
   "keywords": [
     "node-red",
+    "node-red-contrib",
     "deapi",
     "ai",
     "image generation",
@@ -27,17 +30,19 @@
     "background removal",
     "upscale",
     "ocr",
-    "embeddings"
+    "embeddings",
+    "tts",
+    "speech-to-text"
   ],
   "node-red": {
-    "version": ">=3.0.0",
+    "version": ">=4.0.0",
     "nodes": {
       "deapi-config": "nodes/deapi-config.js",
       "deapi": "nodes/deapi.js"
     }
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "license": "MIT",
   "author": "deAPI <media@deapi.ai>",
@@ -50,6 +55,7 @@
     "url": "https://github.com/deapi-ai/node-red-contrib-deapi/issues"
   },
   "devDependencies": {
+    "c8": "^10.1.3",
     "mocha": "^12.0.3",
     "node-red": "^4.1.18",
     "node-red-node-test-helper": "^0.3.6"

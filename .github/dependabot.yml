@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # npm dependencies (production + dev). Lockfile is committed; Dependabot
+  # keeps pinned versions current without ever introducing "latest".
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - npm
+
+  # GitHub Actions used in the CI and publish workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - github-actions
