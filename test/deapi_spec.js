@@ -111,6 +111,53 @@ describe('deapi node (mocked API)', function () {
     });
   });
 
+  it('returns only the result URL when msg.output is "url"', function (done) {
+    mockFetch([
+      jsonResponse(MODELS),
+      jsonResponse({ data: { request_id: 'r2' } }),
+      jsonResponse({ data: { status: 'done', result_url: 'https://results.example/img.png' } }),
+    ]);
+    helper.load([configNode, deapiNode], flow('generate-image'), { c1: { apiKey: 'k' } }, function () {
+      helper.getNode('out').on('input', function (msg) {
+        try {
+          assert.strictEqual(msg.payload, 'https://results.example/img.png');
+          assert.strictEqual(msg.deapi.resultUrl, 'https://results.example/img.png');
+          assert.strictEqual(calls.length, 3, 'no download');
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+      helper.getNode('n1').receive({ payload: 'a red fox', output: 'url' });
+    });
+  });
+
+  it('serves the model list for the editor, filtered by operation', function (done) {
+    mockFetch([jsonResponse(MODELS)]);
+    helper.load([configNode, deapiNode], flow('generate-image'), { c1: { apiKey: 'k' } }, function () {
+      helper
+        .request()
+        .get('/deapi/models/c1?operation=generate-music')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+          try {
+            assert.deepStrictEqual(res.body, [{ slug: 'AceStep_1_5_XL_Turbo_INT8', name: 'AceStep_1_5_XL_Turbo_INT8' }]);
+            assert.ok(calls[0].url.endsWith('/models?per_page=100&page=1'));
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+  });
+
+  it('asks to deploy the config node before listing models', function (done) {
+    helper.load([configNode, deapiNode], flow('generate-image'), { c1: { apiKey: 'k' } }, function () {
+      helper.request().get('/deapi/models/unknown').expect(404, done);
+    });
+  });
+
   it('rejects a missing prompt for edit-image', function (done) {
     helper.load([configNode, deapiNode], flow('edit-image'), { c1: { apiKey: 'k' } }, function () {
       const n1 = helper.getNode('n1');
@@ -148,10 +195,54 @@ describe('request builder', function () {
     assert.strictEqual(form.get('format'), 'mp3');
   });
 
+  it('fills text-to-speech lang and voice from the defaults of non-Kokoro models', async function () {
+    const tts = new DeapiClient({
+      apiKey: 'k',
+      fetchImpl: async () =>
+        jsonResponse({ data: [{ slug: 'Chatterbox', inference_types: ['txt2audio'], info: { defaults: { lang: 'en', voice: 'default', speed: 1, format: 'mp3', sample_rate: 24000 } } }] }),
+    });
+    const req = await buildRequest(tts, 'text-to-speech', { payload: 'Hello there', model: 'Chatterbox', params: { lang: 'de' } });
+    assert.deepStrictEqual(JSON.parse(req.init.body), { model: 'Chatterbox', lang: 'de', voice: 'default', speed: 1, format: 'mp3', sample_rate: 24000, text: 'Hello there' });
+  });
+
   it('uploads an image Buffer under the operation field name', async function () {
     const req = await buildRequest(client, 'animate-image', { payload: Buffer.from('img'), prompt: 'orbit' });
     assert.ok(req.init.body.get('first_frame_image'));
     assert.strictEqual(req.init.body.get('prompt'), 'orbit');
+  });
+});
+
+describe('model catalog', function () {
+  it('requests 100 models per page, follows meta.last_page and caches the result', async function () {
+    const urls = [];
+    const pages = [[{ slug: 'A' }, { slug: 'B' }], [{ slug: 'C' }]];
+    const client = new DeapiClient({
+      apiKey: 'k',
+      fetchImpl: async (url) => {
+        urls.push(String(url));
+        const page = Number(new URL(String(url)).searchParams.get('page'));
+        return jsonResponse({ data: pages[page - 1], meta: { current_page: page, last_page: pages.length } });
+      },
+    });
+    assert.deepStrictEqual((await client.listModels()).map((m) => m.slug), ['A', 'B', 'C']);
+    await client.listModels();
+    assert.deepStrictEqual(urls, [
+      'https://api.deapi.ai/api/v2/models?per_page=100&page=1',
+      'https://api.deapi.ai/api/v2/models?per_page=100&page=2',
+    ]);
+  });
+
+  it('stops on an empty page even without pagination metadata', async function () {
+    let count = 0;
+    const client = new DeapiClient({
+      apiKey: 'k',
+      fetchImpl: async () => {
+        count += 1;
+        return jsonResponse({ data: [], meta: { last_page: 5 } });
+      },
+    });
+    assert.deepStrictEqual(await client.listModels(), []);
+    assert.strictEqual(count, 1);
   });
 });
 
