@@ -1,0 +1,162 @@
+<script type="text/javascript">
+  (function () {
+    var OPERATIONS = [
+      { value: 'generate-image', label: 'Image: generate from text', model: 'Flux1schnell', prompt: false },
+      { value: 'edit-image', label: 'Image: edit with a prompt', model: 'Flux_2_Klein_4B_BF16', prompt: true },
+      { value: 'remove-background', label: 'Image: remove background', model: 'Ben2', prompt: false },
+      { value: 'upscale-image', label: 'Image: upscale 4x', model: 'RealESRGAN_x4', prompt: false },
+      { value: 'image-to-text', label: 'Image: extract text (OCR)', model: 'Nanonets_Ocr_S_F16', prompt: false },
+      { value: 'generate-video', label: 'Video: generate from text', model: 'Ltx2_3_22B_Dist_INT8', prompt: false },
+      { value: 'animate-image', label: 'Video: animate an image', model: 'Ltx2_3_22B_Dist_INT8', prompt: true },
+      { value: 'text-to-speech', label: 'Audio: text to speech', model: 'Kokoro', prompt: false },
+      { value: 'transcribe', label: 'Audio/Video: transcribe (file or URL)', model: 'WhisperLargeV3', prompt: false },
+      { value: 'generate-music', label: 'Audio: generate music', model: 'AceStep_1_5_Turbo', prompt: false },
+      { value: 'embeddings', label: 'Text: create embeddings', model: 'Bge_M3_FP16', prompt: false },
+    ];
+    function findOp(value) {
+      return OPERATIONS.find(function (o) { return o.value === value; }) || OPERATIONS[0];
+    }
+
+    RED.nodes.registerType('deapi', {
+      category: 'AI',
+      color: '#FFBA00',
+      defaults: {
+        name: { value: '' },
+        deapi: { value: '', type: 'deapi-config', required: true },
+        operation: { value: 'generate-image', required: true },
+        model: { value: '' },
+        prompt: { value: '' },
+        params: {
+          value: '',
+          validate: function (v) {
+            if (!v || !v.trim()) return true;
+            try { JSON.parse(v); return true; } catch (e) { return false; }
+          },
+        },
+        output: { value: 'auto' },
+        timeout: { value: 600, validate: RED.validators.number(true) },
+      },
+      inputs: 1,
+      outputs: 1,
+      icon: 'deapi.svg',
+      paletteLabel: 'deAPI',
+      label: function () {
+        return this.name || 'deAPI: ' + findOp(this.operation).label;
+      },
+      labelStyle: function () {
+        return this.name ? 'node_label_italic' : '';
+      },
+      oneditprepare: function () {
+        var node = this;
+        var $op = $('#node-input-operation');
+        OPERATIONS.forEach(function (o) {
+          $op.append($('<option></option>').val(o.value).text(o.label));
+        });
+        $op.val(node.operation || 'generate-image');
+
+        $('#node-input-params').typedInput({ type: 'json', types: ['json'] });
+
+        function refresh() {
+          var op = findOp($op.val());
+          $('#node-input-model').attr('placeholder', op.model + ' (default)');
+          $('.deapi-prompt-row').toggle(op.prompt);
+          var list = $('#deapi-model-list').empty();
+          var configId = $('#node-input-deapi').val();
+          if (!configId || configId === '_ADD_') return;
+          $.getJSON('deapi/models/' + encodeURIComponent(configId) + '?operation=' + encodeURIComponent(op.value))
+            .done(function (models) {
+              models.forEach(function (m) { list.append($('<option></option>').val(m.slug).text(m.name)); });
+            })
+            .fail(function () { /* config node not deployed yet: free text still works */ });
+        }
+        $op.on('change', refresh);
+        $('#node-input-deapi').on('change', refresh);
+        refresh();
+      },
+    });
+  })();
+</script>
+
+<script type="text/html" data-template-name="deapi">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-deapi"><i class="fa fa-key"></i> deAPI</label>
+    <input type="text" id="node-input-deapi" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-operation"><i class="fa fa-cogs"></i> Operation</label>
+    <select id="node-input-operation" style="width: 70%"></select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-model"><i class="fa fa-cube"></i> Model</label>
+    <input type="text" id="node-input-model" list="deapi-model-list" style="width: 70%" />
+    <datalist id="deapi-model-list"></datalist>
+  </div>
+  <div class="form-row deapi-prompt-row">
+    <label for="node-input-prompt"><i class="fa fa-pencil"></i> Prompt</label>
+    <input type="text" id="node-input-prompt" placeholder="or set msg.prompt" style="width: 70%" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-params"><i class="fa fa-sliders"></i> Extra params</label>
+    <input type="text" id="node-input-params" placeholder='{"width": 1024, "height": 768}' style="width: 70%" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-output"><i class="fa fa-sign-out"></i> Output</label>
+    <select id="node-input-output" style="width: 70%">
+      <option value="auto">File as Buffer / text / JSON</option>
+      <option value="url">Result URL only</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-timeout"><i class="fa fa-clock-o"></i> Timeout (s)</label>
+    <input type="text" id="node-input-timeout" style="width: 80px" />
+  </div>
+</script>
+
+<script type="text/markdown" data-help-name="deapi">
+Runs AI models on [deAPI](https://deapi.ai): images, video, speech, transcription, music and embeddings.
+The node submits a job, waits for it to finish and returns the result.
+
+### Inputs
+
+: payload (string | Buffer) : The prompt or text for text operations. An image `Buffer` or image URL for image operations. An audio/video `Buffer` or a media URL (YouTube, X, Twitch, Kick or a direct link) for **transcribe**.
+: prompt (string) : Optional. Prompt for **edit image** and **animate image**. Overrides the node property.
+: model (string) : Optional. A deAPI model slug. Overrides the node property.
+: params (object) : Optional. Extra API fields, for example `{"width": 1024, "height": 768, "steps": 4}` or `{"voice": "bm_george", "lang": "en-gb"}`. Merged over the node's extra params.
+: filename (string) : Optional. File name for uploaded Buffers, for example `speech.wav`.
+: operation (string) : Optional. Overrides the operation, for example `remove-background`.
+
+### Outputs
+
+: payload (Buffer | string | array) : The generated file as a `Buffer` (image, video, audio), the text (OCR, transcription) or the embedding vectors. With **Output: Result URL only** it is the result URL.
+: contentType (string) : MIME type of the downloaded file, for example `image/png` or `video/mp4`.
+: deapi (object) : `requestId`, `model`, `resultUrl` (valid for a few hours) and `price`.
+
+### Operations
+
+| Operation | Input | Default model |
+| --- | --- | --- |
+| Image: generate from text | prompt | Flux1schnell |
+| Image: edit with a prompt | image + prompt | Flux_2_Klein_4B_BF16 |
+| Image: remove background | image | Ben2 |
+| Image: upscale 4x | image | RealESRGAN_x4 |
+| Image: extract text (OCR) | image | Nanonets_Ocr_S_F16 |
+| Video: generate from text | prompt | Ltx2_3_22B_Dist_INT8 |
+| Video: animate an image | image + prompt | Ltx2_3_22B_Dist_INT8 |
+| Audio: text to speech | text | Kokoro |
+| Audio/Video: transcribe | file or URL | WhisperLargeV3 |
+| Audio: generate music | description | AceStep_1_5_Turbo |
+| Text: create embeddings | text | Bge_M3_FP16 |
+
+After you deploy the config node, the **Model** field suggests every model available for the selected operation.
+
+### Details
+
+Defaults such as width, height, steps or voice come from the model catalog, so most operations only need `msg.payload`.
+Write the result to disk with a **write file** node, or send it to a dashboard, MQTT or HTTP response.
+
+[API docs](https://docs.deapi.ai) · [Pricing](https://deapi.ai/pricing)
+</script>

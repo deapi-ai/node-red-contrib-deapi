@@ -1,0 +1,42 @@
+<script type="text/javascript">
+  RED.nodes.registerType('deapi-config', {
+    category: 'config',
+    defaults: {
+      name: { value: '' },
+      baseUrl: { value: '' },
+    },
+    credentials: {
+      apiKey: { type: 'password', required: true },
+    },
+    label: function () {
+      return this.name || 'deAPI';
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="deapi-config">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name" placeholder="deAPI" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-apiKey"><i class="fa fa-key"></i> API key</label>
+    <input type="password" id="node-config-input-apiKey" />
+  </div>
+  <div class="form-tips">
+    Get a free API key at <a href="https://app.deapi.ai/register" target="_blank">app.deapi.ai</a>.
+  </div>
+  <div class="form-row" style="margin-top: 12px">
+    <label for="node-config-input-baseUrl"><i class="fa fa-globe"></i> Base URL</label>
+    <input type="text" id="node-config-input-baseUrl" placeholder="https://api.deapi.ai/api/v2" />
+  </div>
+</script>
+
+<script type="text/markdown" data-help-name="deapi-config">
+Stores your deAPI API key.
+
+### Properties
+
+: API key (string) : Your deAPI key. Create one at [app.deapi.ai](https://app.deapi.ai/register).
+: Base URL (string) : Optional. Leave empty to use `https://api.deapi.ai/api/v2`.
+</script>

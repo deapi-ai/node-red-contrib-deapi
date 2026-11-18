@@ -1,0 +1,115 @@
+[
+  {
+    "id": "tab1",
+    "type": "tab",
+    "label": "deAPI: product photo cleanup"
+  },
+  {
+    "id": "cm1",
+    "type": "comment",
+    "z": "tab1",
+    "name": "Upscale a product photo 4x (input up to 512 px), remove its background and save a transparent PNG. Set your API key in the deAPI config node.",
+    "x": 420,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "in1",
+    "type": "inject",
+    "z": "tab1",
+    "name": "Product photo URL",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "topic": "",
+    "payload": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500",
+    "payloadType": "str",
+    "x": 170,
+    "y": 100,
+    "wires": [
+      [
+        "up1"
+      ]
+    ]
+  },
+  {
+    "id": "rm1",
+    "type": "deapi",
+    "z": "tab1",
+    "name": "Remove background",
+    "deapi": "cfg1",
+    "operation": "remove-background",
+    "model": "",
+    "prompt": "",
+    "params": "",
+    "output": "auto",
+    "timeout": "600",
+    "x": 580,
+    "y": 100,
+    "wires": [
+      [
+        "wf1",
+        "dbg1"
+      ]
+    ]
+  },
+  {
+    "id": "up1",
+    "type": "deapi",
+    "z": "tab1",
+    "name": "Upscale 4x",
+    "deapi": "cfg1",
+    "operation": "upscale-image",
+    "model": "",
+    "prompt": "",
+    "params": "",
+    "output": "auto",
+    "timeout": "600",
+    "x": 390,
+    "y": 100,
+    "wires": [
+      [
+        "rm1"
+      ]
+    ]
+  },
+  {
+    "id": "wf1",
+    "type": "file",
+    "z": "tab1",
+    "name": "Save PNG",
+    "filename": "product-clean.png",
+    "filenameType": "str",
+    "appendNewline": false,
+    "createDir": true,
+    "overwriteFile": "true",
+    "encoding": "none",
+    "x": 760,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "dbg1",
+    "type": "debug",
+    "z": "tab1",
+    "name": "Result info",
+    "active": true,
+    "tosidebar": true,
+    "complete": "deapi",
+    "targetType": "msg",
+    "x": 770,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "cfg1",
+    "type": "deapi-config",
+    "name": "deAPI"
+  }
+]

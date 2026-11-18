@@ -1,0 +1,206 @@
+[
+  {
+    "id": "tab3",
+    "type": "tab",
+    "label": "deAPI: generate media"
+  },
+  {
+    "id": "cm3",
+    "type": "comment",
+    "z": "tab3",
+    "name": "Generate an image, a short video and a voice-over from text. Results are saved next to the Node-RED user directory.",
+    "x": 420,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "in3",
+    "type": "inject",
+    "z": "tab3",
+    "name": "Image prompt",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "topic": "",
+    "payload": "A cozy reading nook by a rainy window, warm lamp light, photorealistic",
+    "payloadType": "str",
+    "x": 160,
+    "y": 100,
+    "wires": [
+      [
+        "img3"
+      ]
+    ]
+  },
+  {
+    "id": "img3",
+    "type": "deapi",
+    "z": "tab3",
+    "name": "Generate image",
+    "deapi": "cfg1",
+    "operation": "generate-image",
+    "model": "",
+    "prompt": "",
+    "params": "{\"width\":1024,\"height\":768}",
+    "output": "auto",
+    "timeout": "600",
+    "x": 370,
+    "y": 100,
+    "wires": [
+      [
+        "wimg3"
+      ]
+    ]
+  },
+  {
+    "id": "wimg3",
+    "type": "file",
+    "z": "tab3",
+    "name": "image.png",
+    "filename": "image.png",
+    "filenameType": "str",
+    "appendNewline": false,
+    "createDir": true,
+    "overwriteFile": "true",
+    "encoding": "none",
+    "x": 560,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "in4",
+    "type": "inject",
+    "z": "tab3",
+    "name": "Video prompt",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "topic": "",
+    "payload": "A paper boat drifting on a calm lake at sunrise, gentle ripples, slow dolly-in",
+    "payloadType": "str",
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "vid3"
+      ]
+    ]
+  },
+  {
+    "id": "vid3",
+    "type": "deapi",
+    "z": "tab3",
+    "name": "Generate video",
+    "deapi": "cfg1",
+    "operation": "generate-video",
+    "model": "",
+    "prompt": "",
+    "params": "",
+    "output": "auto",
+    "timeout": "900",
+    "x": 370,
+    "y": 160,
+    "wires": [
+      [
+        "wvid3"
+      ]
+    ]
+  },
+  {
+    "id": "wvid3",
+    "type": "file",
+    "z": "tab3",
+    "name": "video.mp4",
+    "filename": "video.mp4",
+    "filenameType": "str",
+    "appendNewline": false,
+    "createDir": true,
+    "overwriteFile": "true",
+    "encoding": "none",
+    "x": 560,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "in5",
+    "type": "inject",
+    "z": "tab3",
+    "name": "Voice-over text",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "params",
+        "v": "{\"voice\":\"bm_george\",\"lang\":\"en-gb\"}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "once": false,
+    "topic": "",
+    "payload": "Welcome back. Today we are building an AI pipeline in Node-RED.",
+    "payloadType": "str",
+    "x": 170,
+    "y": 220,
+    "wires": [
+      [
+        "tts3"
+      ]
+    ]
+  },
+  {
+    "id": "tts3",
+    "type": "deapi",
+    "z": "tab3",
+    "name": "Text to speech",
+    "deapi": "cfg1",
+    "operation": "text-to-speech",
+    "model": "",
+    "prompt": "",
+    "params": "",
+    "output": "auto",
+    "timeout": "600",
+    "x": 370,
+    "y": 220,
+    "wires": [
+      [
+        "wtts3"
+      ]
+    ]
+  },
+  {
+    "id": "wtts3",
+    "type": "file",
+    "z": "tab3",
+    "name": "voice.mp3",
+    "filename": "voice.mp3",
+    "filenameType": "str",
+    "appendNewline": false,
+    "createDir": true,
+    "overwriteFile": "true",
+    "encoding": "none",
+    "x": 560,
+    "y": 220,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "cfg1",
+    "type": "deapi-config",
+    "name": "deAPI"
+  }
+]
