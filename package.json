@@ -55,7 +55,7 @@
     "url": "https://github.com/deapi-ai/node-red-contrib-deapi/issues"
   },
   "devDependencies": {
-    "c8": "^10.1.3",
+    "c8": "^12.0.0",
     "mocha": "^12.0.3",
     "node-red": "^4.1.18",
     "node-red-node-test-helper": "^0.3.6"
